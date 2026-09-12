@@ -309,21 +309,110 @@ section {
   color: var(--rose);
   margin: 0.8rem 0 0;
 }
-.year-badge {
-  display: inline-block;
-  margin-top: 1.6rem;
-  padding: 0.5rem 1.1rem;
-  font-size: 0.78rem;
-  letter-spacing: 0.1em;
-  color: var(--gold);
-  border: 1px solid rgba(240, 185, 62, 0.3);
-  border-radius: 999px;
-}
 .ticker {
   margin: 1.4rem 0 0;
   font-size: 0.85rem;
   color: rgba(255, 246, 236, 0.5);
   font-variant-numeric: tabular-nums;
+}
+
+/* ---------------- conversation ---------------- */
+.conversation {
+  padding: 4rem 0 6rem;
+}
+.conversation > .wrap > h2 {
+  font-family: var(--display);
+  font-weight: 300;
+  font-size: clamp(1.9rem, 5vw, 3rem);
+  text-align: center;
+  margin: 0 0 0.5rem;
+  color: var(--cream);
+}
+.dateline {
+  text-align: center;
+  font-size: 0.78rem;
+  letter-spacing: 0.1em;
+  color: rgba(255, 246, 236, 0.45);
+  margin: 0 0 2.8rem;
+}
+.chat {
+  max-width: 600px;
+  margin-inline: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 0.7rem;
+  perspective: 1100px;
+}
+.bubble {
+  max-width: 80%;
+  padding: 1rem 1.3rem;
+  font-size: 0.98rem;
+  line-height: 1.6;
+  will-change: transform;
+}
+.bubble.hers {
+  align-self: flex-start;
+  background: linear-gradient(165deg, #fff6ec, #f3d6dd);
+  color: #2b1339;
+  border-radius: 20px 20px 20px 6px;
+  box-shadow: 0 14px 30px rgba(10, 4, 16, 0.35);
+}
+.bubble.mine {
+  align-self: flex-end;
+  background: rgba(240, 87, 124, 0.16);
+  border: 1px solid rgba(240, 87, 124, 0.4);
+  color: var(--cream);
+  border-radius: 20px 20px 6px 20px;
+}
+.bubble.hers + .bubble.mine,
+.bubble.mine + .bubble.hers {
+  margin-top: 1.2rem;
+}
+.typing {
+  display: flex;
+  gap: 5px;
+  align-items: center;
+  padding: 0.9rem 1.2rem;
+}
+.typing b {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--blush);
+  display: block;
+  animation: dots 1.3s ease-in-out infinite;
+}
+.typing b:nth-child(2) {
+  animation-delay: 0.18s;
+}
+.typing b:nth-child(3) {
+  animation-delay: 0.36s;
+}
+@keyframes dots {
+  0%,
+  60%,
+  100% {
+    opacity: 0.3;
+    transform: translateY(0);
+  }
+  30% {
+    opacity: 1;
+    transform: translateY(-4px);
+  }
+}
+.receipt {
+  align-self: flex-end;
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 0.72rem;
+  letter-spacing: 0.08em;
+  color: rgba(255, 246, 236, 0.42);
+  margin: 0.5rem 0 0;
+}
+.receipt svg {
+  width: 11px;
+  fill: var(--rose);
 }
 
 /* ---------------- promises ---------------- */
@@ -373,31 +462,6 @@ section {
 .promise span {
   color: rgba(255, 246, 236, 0.76);
   font-size: 0.96rem;
-}
-
-/* ---------------- letter ---------------- */
-.letter {
-  padding: 5rem 0 7rem;
-  text-align: center;
-  perspective: 1000px;
-}
-.letter blockquote {
-  font-family: var(--display);
-  font-weight: 300;
-  font-style: italic;
-  font-size: clamp(1.3rem, 3.4vw, 2rem);
-  line-height: 1.5;
-  max-width: 26ch;
-  margin: 0 auto;
-  color: var(--cream);
-}
-.letter .sign {
-  margin-top: 2.2rem;
-  letter-spacing: 0.08em;
-  font-size: 0.85rem;
-  font-style: italic;
-  color: var(--gold);
-  font-family: var(--display);
 }
 
 /* ---------------- finale ---------------- */
@@ -468,11 +532,14 @@ footer {
 }
 
 @media (max-width: 720px) {
+  .hero {
+    padding: 4.5rem 0 3rem;
+  }
   .milestone,
   .milestone.right {
     width: 100%;
     text-align: left;
-    padding-left: 2.2rem;
+    padding: 1.9rem 1rem 1.9rem 2.2rem;
   }
   .milestone.right .when,
   .milestone.right h2,
@@ -487,6 +554,30 @@ footer {
   .milestone.right::before {
     left: 2px;
     right: auto;
+  }
+  .promise {
+    padding: 1.2rem 1.1rem;
+  }
+  .bubble {
+    max-width: 90%;
+  }
+  .send {
+    width: 100%;
+  }
+}
+
+@media (max-width: 420px) {
+  .hero .stamp {
+    letter-spacing: 0.14em;
+    font-size: 0.66rem;
+    padding: 0.45rem 0.85rem;
+  }
+  .scroll-hint {
+    font-size: 0.76rem;
+  }
+  .bubble {
+    max-width: 94%;
+    padding: 0.85rem 1.1rem;
   }
 }
 

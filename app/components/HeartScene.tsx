@@ -3,29 +3,29 @@
 import { useEffect, useRef } from "react";
 import * as THREE from "three";
 
+// Traces the same silhouette as HEART_PATH (heartPath.ts) so the 3D hero
+// heart, the flat bullet icons and the click-burst hearts all match.
 function buildHeartGeometry() {
-  const x = 0;
-  const y = 0;
   const shape = new THREE.Shape();
-  shape.moveTo(x + 5, y + 5);
-  shape.bezierCurveTo(x + 5, y + 5, x + 4, y, x, y);
-  shape.bezierCurveTo(x - 6, y, x - 6, y + 7, x - 6, y + 7);
-  shape.bezierCurveTo(x - 6, y + 11, x - 3, y + 15.4, x + 5, y + 19);
-  shape.bezierCurveTo(x + 12, y + 15.4, x + 16, y + 11, x + 16, y + 7);
-  shape.bezierCurveTo(x + 16, y + 7, x + 16, y, x + 10, y);
-  shape.bezierCurveTo(x + 7, y, x + 5, y + 5, x + 5, y + 5);
+  shape.moveTo(50, 88);
+  shape.bezierCurveTo(22, 68, 6, 50, 6, 32);
+  shape.bezierCurveTo(6, 18, 17, 8, 30, 8);
+  shape.bezierCurveTo(39, 8, 46, 13, 50, 20);
+  shape.bezierCurveTo(54, 13, 61, 8, 70, 8);
+  shape.bezierCurveTo(83, 8, 94, 18, 94, 32);
+  shape.bezierCurveTo(94, 50, 78, 68, 50, 88);
 
   const geometry = new THREE.ExtrudeGeometry(shape, {
-    depth: 5,
+    depth: 26,
     bevelEnabled: true,
-    bevelThickness: 1.4,
-    bevelSize: 1,
+    bevelThickness: 6,
+    bevelSize: 4,
     bevelSegments: 6,
-    curveSegments: 24,
+    curveSegments: 48,
   });
   geometry.center();
   geometry.rotateX(Math.PI);
-  geometry.scale(0.11, 0.11, 0.11);
+  geometry.scale(0.028, 0.028, 0.028);
   return geometry;
 }
 

@@ -4,10 +4,9 @@ import { useEffect, useRef } from "react";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import HeartScene from "./HeartScene";
+import { HEART_PATH } from "./heartPath";
 
 const MET_DATE = new Date(2024, 8, 13);
-const HEART_PATH =
-  "M50 88 C22 68 6 50 6 32 C6 18 17 8 30 8 C39 8 46 13 50 20 C54 13 61 8 70 8 C83 8 94 18 94 32 C94 50 78 68 50 88 Z";
 
 function Heart({ className }: { className?: string }) {
   return (
@@ -19,15 +18,6 @@ function Heart({ className }: { className?: string }) {
 
 function daysTogether() {
   return Math.max(0, Math.floor((Date.now() - MET_DATE.getTime()) / 86400000));
-}
-
-function yearsCompleted(now: Date) {
-  let years = now.getFullYear() - MET_DATE.getFullYear();
-  const hadAnniversaryThisYear =
-    now.getMonth() > MET_DATE.getMonth() ||
-    (now.getMonth() === MET_DATE.getMonth() && now.getDate() >= MET_DATE.getDate());
-  if (!hadAnniversaryThisYear) years -= 1;
-  return Math.max(0, years);
 }
 
 const MILESTONES = [
@@ -48,9 +38,24 @@ const MILESTONES = [
   },
   {
     when: "13 September 2026",
-    title: "Year three, let's go",
+    title: "Two years, still going",
     text: "Older, wiser, still occasionally ridiculous — mostly me. Whatever's next, I've already decided who I'm dragging along for it.",
   },
+];
+
+const HER_MESSAGES = [
+  "Baby, I honestly can't believe it's already been 2 years since we started talking randomly",
+  "I still remember how something that started so simply became a beautiful part of my life. And somewhere along the way u became my favorite person, my comfort, and the one person I know I can always count on",
+  "I love the way you treat me like a little kid, listen to all my silly demands, and somehow always try to make my little wishes come true. The way u care about me, and most importantly stand by my side when things get difficult, means more to me than I can ever explain",
+  "These two years have had so many beautiful moments and i am grateful for every single one of them. I hope we keep making memories, laughing together, annoying each other, and choosing each other through everything",
+  "Happy 2 years Baby. I am so lucky to have u in my life. I love you so much, and I hope these two years are just the beginning of a lifetime of us",
+  "i know sometime i became rude or silly",
+];
+
+const MY_REPLIES = [
+  "You're never too much. The silly, the rude days, the demands — that's all just you, and you is the whole point.",
+  "I'd read this a thousand times and still not know how to answer it properly. So I built you a page instead.",
+  "Happy 2 years, Shakiba. Lifetime of us — that's the plan.",
 ];
 
 const PROMISES = [
@@ -82,7 +87,6 @@ export default function AnniversaryPage() {
   const threadFillRef = useRef<HTMLDivElement>(null);
   const tallyRef = useRef<HTMLParagraphElement>(null);
   const tickerRef = useRef<HTMLParagraphElement>(null);
-  const yearBadgeRef = useRef<HTMLParagraphElement>(null);
 
   useEffect(() => {
     document.body.classList.add("loaded");
@@ -93,9 +97,6 @@ export default function AnniversaryPage() {
 
     if (tallyRef.current && reduced) {
       tallyRef.current.textContent = daysTogether().toLocaleString();
-    }
-    if (yearBadgeRef.current) {
-      yearBadgeRef.current.textContent = `in year ${yearsCompleted(new Date()) + 1} of us`;
     }
 
     function tick() {
@@ -199,6 +200,63 @@ export default function AnniversaryPage() {
           });
         }
 
+        gsap.utils.toArray<HTMLElement>(".bubble").forEach((el) => {
+          const fromLeft = el.classList.contains("hers");
+          gsap.fromTo(
+            el,
+            { opacity: 0, x: fromLeft ? -34 : 34, y: 14, scale: 0.94 },
+            {
+              opacity: 1,
+              x: 0,
+              y: 0,
+              scale: 1,
+              ease: "back.out(1.4)",
+              scrollTrigger: {
+                trigger: el,
+                start: "top 92%",
+                end: "top 76%",
+                scrub: 0.5,
+              },
+            }
+          );
+        });
+
+        const typingEl = document.querySelector<HTMLElement>(".typing");
+        const firstReply = document.querySelector<HTMLElement>(".bubble.mine");
+        if (typingEl && firstReply) {
+          ScrollTrigger.create({
+            trigger: firstReply,
+            start: "top 90%",
+            once: true,
+            onEnter: () => {
+              gsap.to(typingEl, {
+                opacity: 0,
+                duration: 0.4,
+                delay: 0.35,
+                onComplete: () => {
+                  typingEl.style.display = "none";
+                },
+              });
+            },
+          });
+        }
+
+        gsap.fromTo(
+          ".receipt",
+          { opacity: 0, y: 14 },
+          {
+            opacity: 1,
+            y: 0,
+            ease: "power2.out",
+            scrollTrigger: {
+              trigger: ".receipt",
+              start: "top 95%",
+              end: "top 82%",
+              scrub: 0.5,
+            },
+          }
+        );
+
         gsap.utils.toArray<HTMLElement>(".promise").forEach((el, i) => {
           const dir = i % 2 === 0 ? -1 : 1;
           gsap.fromTo(
@@ -219,26 +277,6 @@ export default function AnniversaryPage() {
             }
           );
         });
-
-        const quote = document.querySelector(".letter blockquote");
-        if (quote) {
-          gsap.fromTo(
-            quote,
-            { opacity: 0, y: 28, rotateX: 8 },
-            {
-              opacity: 1,
-              y: 0,
-              rotateX: 0,
-              ease: "power2.out",
-              scrollTrigger: {
-                trigger: ".letter",
-                start: "top 80%",
-                end: "top 50%",
-                scrub: 0.5,
-              },
-            }
-          );
-        }
 
         const finaleHeading = document.querySelector(".finale h2");
         if (finaleHeading) {
@@ -368,10 +406,41 @@ export default function AnniversaryPage() {
             0
           </p>
           <p className="unit">days of you — and I&rsquo;d sign up for every single one again</p>
-          <p className="year-badge" ref={yearBadgeRef} />
           <p className="ticker" ref={tickerRef}>
             &nbsp;
           </p>
+        </div>
+      </section>
+
+      <section className="conversation">
+        <div className="wrap">
+          <h2>What you sent me</h2>
+          <p className="dateline">13 September</p>
+
+          <div className="chat">
+            {HER_MESSAGES.map((msg, i) => (
+              <div className="bubble hers" key={`hers-${i}`}>
+                {msg}
+              </div>
+            ))}
+
+            <div className="bubble mine typing" aria-hidden="true">
+              <b />
+              <b />
+              <b />
+            </div>
+
+            {MY_REPLIES.map((msg, i) => (
+              <div className="bubble mine" key={`mine-${i}`}>
+                {msg}
+              </div>
+            ))}
+
+            <p className="receipt">
+              <Heart />
+              seen, and kept forever
+            </p>
+          </div>
         </div>
       </section>
 
@@ -392,26 +461,15 @@ export default function AnniversaryPage() {
         </div>
       </section>
 
-      <section className="letter">
-        <div className="wrap">
-          <blockquote>
-            Of everyone I could&rsquo;ve been accidentally seated next to on a random Friday, I am extremely
-            glad it was you.
-          </blockquote>
-          <p className="sign">— Zayem, still not over it</p>
-        </div>
-      </section>
-
       <section className="finale">
         <div className="wrap">
           <h2>
-            Happy anniversary,
+            Happy two years,
             <br />
             <em>Shakiba</em>
           </h2>
           <p>
-            Here&rsquo;s to the Friday we met, the two years of chaos since, and however many more you&rsquo;ll
-            let me stick around for.
+            Two years down. You were right — this is just the beginning of a lifetime of us.
           </p>
           <button className="send" onClick={sendHeart}>
             Send Shakiba a heart
