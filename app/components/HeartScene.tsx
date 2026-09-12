@@ -2,6 +2,7 @@
 
 import { useEffect, useRef } from "react";
 import * as THREE from "three";
+import { HEART_PATH } from "./heartPath";
 
 // Traces the same silhouette as HEART_PATH (heartPath.ts) so the 3D hero
 // heart, the flat bullet icons and the click-burst hearts all match.
@@ -29,18 +30,23 @@ function buildHeartGeometry() {
   return geometry;
 }
 
-function makeGlowSprite() {
+// Same heart silhouette as the hero mesh and bullet icons, rendered as a
+// soft glowing sprite so the drifting background particles read as tiny
+// hearts rather than plain dots.
+function makeHeartSprite() {
   const size = 128;
   const canvas = document.createElement("canvas");
   canvas.width = size;
   canvas.height = size;
   const ctx = canvas.getContext("2d")!;
-  const grad = ctx.createRadialGradient(size / 2, size / 2, 0, size / 2, size / 2, size / 2);
-  grad.addColorStop(0, "rgba(255,255,255,1)");
-  grad.addColorStop(0.35, "rgba(255,255,255,0.55)");
-  grad.addColorStop(1, "rgba(255,255,255,0)");
-  ctx.fillStyle = grad;
-  ctx.fillRect(0, 0, size, size);
+  ctx.translate(size * 0.03, size * 0.05);
+  const scale = (size * 0.94) / 100;
+  ctx.scale(scale, scale);
+  const path = new Path2D(HEART_PATH);
+  ctx.shadowColor = "rgba(255,255,255,0.95)";
+  ctx.shadowBlur = 9;
+  ctx.fillStyle = "#ffffff";
+  ctx.fill(path);
   const tex = new THREE.CanvasTexture(canvas);
   return tex;
 }
@@ -114,28 +120,36 @@ export default function HeartScene() {
     rim.position.set(0, 4, -5);
     scene.add(rim);
 
-    // drifting particles
+    // drifting heart particles — mostly rose, some gold, matching the burst hearts
     const count = isSmall ? PARTICLE_COUNT_MOBILE : PARTICLE_COUNT_DESKTOP;
     const positions = new Float32Array(count * 3);
+    const colors = new Float32Array(count * 3);
     const speeds = new Float32Array(count);
     const phases = new Float32Array(count);
+    const roseColor = new THREE.Color("#f0577c");
+    const goldColor = new THREE.Color("#f0b93e");
     for (let i = 0; i < count; i++) {
       positions[i * 3] = (Math.random() - 0.5) * 16;
       positions[i * 3 + 1] = (Math.random() - 0.5) * 14;
       positions[i * 3 + 2] = (Math.random() - 0.5) * 10 - 2;
       speeds[i] = 0.25 + Math.random() * 0.55;
       phases[i] = Math.random() * Math.PI * 2;
+      const c = Math.random() > 0.62 ? goldColor : roseColor;
+      colors[i * 3] = c.r;
+      colors[i * 3 + 1] = c.g;
+      colors[i * 3 + 2] = c.b;
     }
     const particleGeo = new THREE.BufferGeometry();
     particleGeo.setAttribute("position", new THREE.BufferAttribute(positions, 3));
+    particleGeo.setAttribute("color", new THREE.BufferAttribute(colors, 3));
     const particleMat = new THREE.PointsMaterial({
-      size: 0.32,
-      map: makeGlowSprite(),
+      size: 0.42,
+      map: makeHeartSprite(),
       transparent: true,
       depthWrite: false,
       blending: THREE.AdditiveBlending,
-      color: new THREE.Color("#f0b93e"),
-      opacity: 0.75,
+      vertexColors: true,
+      opacity: 0.5,
     });
     const particles = new THREE.Points(particleGeo, particleMat);
     scene.add(particles);
