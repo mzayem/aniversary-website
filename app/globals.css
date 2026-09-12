@@ -1,26 +1,510 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --ink: #150a1d;
+  --plum: #2b1339;
+  --rose: #f0577c;
+  --rose-dim: #b83f61;
+  --blush: #fbd3d8;
+  --gold: #f0b93e;
+  --cream: #fff6ec;
+
+  --display: var(--font-display), "Fraunces", Georgia, serif;
+  --body: var(--font-body), "Karla", "Helvetica Neue", Arial, sans-serif;
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+* ,
+*::before,
+*::after {
+  box-sizing: border-box;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+html {
+  scroll-behavior: smooth;
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  margin: 0;
+  min-height: 100svh;
+  background:
+    radial-gradient(900px 620px at 80% -6%, rgba(240, 87, 124, 0.24), transparent 60%),
+    radial-gradient(760px 680px at 6% 18%, rgba(240, 185, 62, 0.12), transparent 58%),
+    linear-gradient(180deg, var(--ink) 0%, var(--plum) 46%, var(--ink) 100%);
+  color: var(--cream);
+  font-family: var(--body);
+  font-weight: 300;
+  font-size: clamp(1rem, 0.96rem + 0.3vw, 1.125rem);
+  line-height: 1.7;
+  overflow-x: hidden;
+  position: relative;
+}
+
+body::after {
+  content: "";
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 3;
+  opacity: 0.28;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3'/%3E%3C/filter%3E%3Crect width='140' height='140' filter='url(%23n)' opacity='.35'/%3E%3C/svg%3E");
+}
+
+::selection {
+  background: var(--rose);
+  color: var(--ink);
+}
+
+:focus-visible {
+  outline: 2px solid var(--gold);
+  outline-offset: 4px;
+  border-radius: 2px;
+}
+
+/* ---------------- fixed 3D scene layer ---------------- */
+.scene {
+  position: fixed;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+}
+.scene canvas {
+  display: block;
+  width: 100% !important;
+  height: 100% !important;
+}
+
+.wrap {
+  position: relative;
+  z-index: 2;
+  width: min(1040px, 92vw);
+  margin-inline: auto;
+}
+
+section {
+  position: relative;
+  z-index: 2;
+}
+
+.panel {
+  background: rgba(21, 10, 29, 0.5);
+  backdrop-filter: blur(6px);
+  border: 1px solid rgba(240, 185, 62, 0.16);
+  border-radius: 2px 22px 2px 22px;
+}
+
+/* ---------------- hero ---------------- */
+.hero {
+  min-height: 100svh;
+  display: grid;
+  place-items: center;
+  text-align: center;
+  padding: 6rem 0 4rem;
+}
+
+.hero .stamp {
+  font-family: var(--body);
+  letter-spacing: 0.24em;
+  font-size: 0.72rem;
+  color: var(--gold);
+  margin: 0 0 2.2rem;
+  padding: 0.5rem 1rem;
+  border: 1px solid rgba(240, 185, 62, 0.35);
+  border-radius: 999px;
+  display: inline-block;
+}
+
+.names {
+  font-family: var(--display);
+  font-weight: 300;
+  font-size: clamp(2.5rem, 8.6vw, 5.4rem);
+  line-height: 1.02;
+  letter-spacing: -0.02em;
+  margin: 0;
+  color: var(--cream);
+}
+.names .amp {
+  display: block;
+  font-size: 0.32em;
+  color: var(--rose);
+  font-style: italic;
+  margin: 0.5rem 0;
+  letter-spacing: 0;
+}
+
+.hero .sub {
+  max-width: 32ch;
+  margin: 2rem auto 0;
+  color: rgba(255, 246, 236, 0.76);
+  font-size: 1.15rem;
+}
+
+.scroll-hint {
+  margin-top: 3.4rem;
+  font-size: 0.82rem;
+  color: rgba(255, 246, 236, 0.5);
+}
+.scroll-hint span {
+  display: block;
+  width: 1px;
+  height: 48px;
+  margin: 0.9rem auto 0;
+  background: linear-gradient(var(--gold), transparent);
+  animation: sink 2.4s ease-in-out infinite;
+}
+@keyframes sink {
+  0%,
+  100% {
+    transform: scaleY(0.4);
+    opacity: 0.4;
+    transform-origin: top;
+  }
+  50% {
+    transform: scaleY(1);
+    opacity: 1;
+    transform-origin: top;
+  }
+}
+
+.lift {
+  opacity: 0;
+  transform: translateY(24px);
+}
+.loaded .lift {
+  opacity: 1;
+  transform: none;
+  transition: opacity 1s ease, transform 1s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+.loaded .d1 {
+  transition-delay: 0.1s;
+}
+.loaded .d2 {
+  transition-delay: 0.35s;
+}
+.loaded .d3 {
+  transition-delay: 0.6s;
+}
+.loaded .d4 {
+  transition-delay: 0.9s;
+}
+.loaded .d5 {
+  transition-delay: 1.15s;
+}
+
+/* ---------------- the thread / story ---------------- */
+.story {
+  padding: 3rem 0 6rem;
+  position: relative;
+  perspective: 1400px;
+}
+
+.thread {
+  position: absolute;
+  left: 50%;
+  top: 0;
+  bottom: 0;
+  width: 1px;
+  transform: translateX(-50%);
+  background: rgba(240, 185, 62, 0.3);
+  z-index: 1;
+}
+.thread i {
+  position: absolute;
+  inset: 0 auto 0 0;
+  width: 1px;
+  height: 0;
+  background: linear-gradient(180deg, var(--gold), var(--rose));
+  box-shadow: 0 0 14px rgba(240, 87, 124, 0.6);
+}
+
+.milestone {
+  position: relative;
+  width: min(46%, 420px);
+  padding: 2.4rem 1.8rem;
+  margin: 1.6rem 0;
+  transform-style: preserve-3d;
+  will-change: transform;
+}
+.milestone.right {
+  margin-left: auto;
+}
+
+.milestone::before {
+  content: "";
+  position: absolute;
+  top: 2.9rem;
+  width: 9px;
+  height: 9px;
+  background: var(--rose);
+  border-radius: 50% 50% 0 50%;
+  transform: rotate(45deg) scale(0.4);
+  box-shadow: 0 0 0 6px rgba(240, 87, 124, 0.14);
+}
+.milestone.left::before {
+  right: -1.9%;
+}
+.milestone.right::before {
+  left: -1.9%;
+}
+.milestone.seen::before {
+  transform: rotate(45deg) scale(1);
+  transition: transform 0.5s cubic-bezier(0.2, 1.6, 0.4, 1) 0.1s;
+}
+
+.milestone .when {
+  display: block;
+  font-size: 0.76rem;
+  letter-spacing: 0.14em;
+  color: var(--gold);
+  margin-bottom: 0.6rem;
+}
+.milestone h2 {
+  font-family: var(--display);
+  font-weight: 300;
+  font-size: clamp(1.5rem, 3.2vw, 2.2rem);
+  line-height: 1.16;
+  margin: 0 0 0.9rem;
+  color: var(--blush);
+}
+.milestone p {
+  margin: 0;
+  color: rgba(255, 246, 236, 0.8);
+  max-width: 40ch;
+}
+.milestone.right .when,
+.milestone.right h2,
+.milestone.right p {
+  margin-left: auto;
+}
+.milestone.right {
+  text-align: right;
+}
+
+/* ---------------- counter ---------------- */
+.counter {
+  text-align: center;
+  padding: 5rem 0 6rem;
+  perspective: 1000px;
+}
+.counter .lead {
+  color: rgba(255, 246, 236, 0.55);
+  font-size: 0.95rem;
+  margin: 0 0 1.2rem;
+  font-style: italic;
+  font-family: var(--display);
+}
+.tally {
+  font-family: var(--display);
+  font-weight: 600;
+  font-size: clamp(4rem, 16vw, 9.5rem);
+  line-height: 0.9;
+  margin: 0;
+  color: var(--cream);
+  font-variant-numeric: tabular-nums;
+}
+.counter .unit {
+  font-family: var(--display);
+  font-style: italic;
+  font-weight: 300;
+  font-size: clamp(1.05rem, 2.8vw, 1.5rem);
+  color: var(--rose);
+  margin: 0.8rem 0 0;
+}
+.year-badge {
+  display: inline-block;
+  margin-top: 1.6rem;
+  padding: 0.5rem 1.1rem;
+  font-size: 0.78rem;
+  letter-spacing: 0.1em;
+  color: var(--gold);
+  border: 1px solid rgba(240, 185, 62, 0.3);
+  border-radius: 999px;
+}
+.ticker {
+  margin: 1.4rem 0 0;
+  font-size: 0.85rem;
+  color: rgba(255, 246, 236, 0.5);
+  font-variant-numeric: tabular-nums;
+}
+
+/* ---------------- promises ---------------- */
+.promises {
+  padding: 4rem 0 6rem;
+}
+.promises > h2 {
+  font-family: var(--display);
+  font-weight: 300;
+  font-size: clamp(1.9rem, 5vw, 3rem);
+  text-align: center;
+  margin: 0 0 3.2rem;
+  color: var(--cream);
+}
+.promise-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 1.3rem;
+  max-width: 720px;
+  margin-inline: auto;
+  perspective: 1200px;
+}
+.promise {
+  display: grid;
+  grid-template-columns: 26px 1fr;
+  gap: 1.1rem;
+  align-items: start;
+  padding: 1.5rem 1.6rem;
+  will-change: transform;
+}
+.promise svg {
+  width: 18px;
+  margin-top: 0.4rem;
+  fill: var(--rose);
+  flex-shrink: 0;
+}
+.promise strong {
+  display: block;
+  font-family: var(--display);
+  font-weight: 400;
+  font-size: 1.15rem;
+  color: var(--blush);
+  margin-bottom: 0.25rem;
+}
+.promise span {
+  color: rgba(255, 246, 236, 0.76);
+  font-size: 0.96rem;
+}
+
+/* ---------------- letter ---------------- */
+.letter {
+  padding: 5rem 0 7rem;
+  text-align: center;
+  perspective: 1000px;
+}
+.letter blockquote {
+  font-family: var(--display);
+  font-weight: 300;
+  font-style: italic;
+  font-size: clamp(1.3rem, 3.4vw, 2rem);
+  line-height: 1.5;
+  max-width: 26ch;
+  margin: 0 auto;
+  color: var(--cream);
+}
+.letter .sign {
+  margin-top: 2.2rem;
+  letter-spacing: 0.08em;
+  font-size: 0.85rem;
+  font-style: italic;
+  color: var(--gold);
+  font-family: var(--display);
+}
+
+/* ---------------- finale ---------------- */
+.finale {
+  min-height: 92svh;
+  display: grid;
+  place-items: center;
+  text-align: center;
+  padding: 5rem 0;
+  perspective: 1000px;
+}
+.finale h2 {
+  font-family: var(--display);
+  font-weight: 300;
+  font-size: clamp(2.1rem, 7vw, 4.2rem);
+  line-height: 1.1;
+  margin: 0 0 1.3rem;
+  color: var(--cream);
+}
+.finale h2 em {
+  color: var(--rose);
+  font-style: italic;
+}
+.finale p {
+  color: rgba(255, 246, 236, 0.72);
+  max-width: 34ch;
+  margin: 0 auto 2.6rem;
+}
+.send {
+  font-family: var(--body);
+  font-weight: 600;
+  font-size: 0.85rem;
+  letter-spacing: 0.05em;
+  color: var(--ink);
+  background: var(--blush);
+  border: 0;
+  padding: 1.05rem 2.3rem;
+  border-radius: 999px;
+  cursor: pointer;
+  transition: background 0.25s ease, transform 0.25s cubic-bezier(0.2, 1.4, 0.4, 1);
+}
+.send:hover {
+  background: var(--rose);
+  color: var(--cream);
+  transform: translateY(-3px) scale(1.04) rotate(-1deg);
+}
+.send:active {
+  transform: translateY(0) scale(0.98);
+}
+
+.burst {
+  position: fixed;
+  z-index: 6;
+  pointer-events: none;
+  width: 20px;
+  height: 20px;
+  fill: var(--rose);
+}
+
+footer {
+  text-align: center;
+  padding: 0 0 3rem;
+  font-size: 0.72rem;
+  letter-spacing: 0.12em;
+  color: rgba(255, 246, 236, 0.34);
+  position: relative;
+  z-index: 2;
+}
+
+@media (max-width: 720px) {
+  .milestone,
+  .milestone.right {
+    width: 100%;
+    text-align: left;
+    padding-left: 2.2rem;
+  }
+  .milestone.right .when,
+  .milestone.right h2,
+  .milestone.right p {
+    margin-left: 0;
+  }
+  .thread {
+    left: 6px;
+    transform: none;
+  }
+  .milestone.left::before,
+  .milestone.right::before {
+    left: 2px;
+    right: auto;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+  * ,
+  *::before,
+  *::after {
+    animation: none !important;
+    transition-duration: 0.001s !important;
+  }
+  .lift {
+    opacity: 1;
+    transform: none;
+  }
+  .milestone::before {
+    transform: rotate(45deg) scale(1);
+  }
 }
